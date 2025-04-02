@@ -1,18 +1,20 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <errno.h>
-#include <limits.h>
+ #pragma once 
+ #include <stdbool.h> 
+ #include <errno.h> 
+ #include <limits.h> 
+ #include <stdint.h> 
+ #include <stdio.h> 
+ #include <stdlib.h> 
+ #include <string.h>
 
 
 typedef enum {EMPTY, RED, YELLOW} PieceColor;
 typedef uint64_t bitboard;
 
-const bitboard SEVENTH_COLUMN_MASK = ~((1ULL << 6) | (1ULL << 13) | (1ULL << 20) | (1ULL << 27) | (1ULL << 34) | (1ULL << 41));
-const bitboard FIRST_COLUMN_MASK = ~((1ULL << 0) | (1ULL << 7) | (1ULL << 14) | (1ULL << 21) | (1ULL << 28) | (1ULL << 35));
-const bitboard FULL_BOARD = (1ULL << 42) - 1;
+// Define board masks and constants as static constants. 
+static const bitboard SEVENTH_COLUMN_MASK = ~((1ULL << 6) | (1ULL << 13) | (1ULL << 20) | (1ULL << 27) | (1ULL << 34) | (1ULL << 41)); 
+static const bitboard FIRST_COLUMN_MASK = ~((1ULL << 0) | (1ULL << 7) | (1ULL << 14) | (1ULL << 21) | (1ULL << 28) | (1ULL << 35)); 
+static const bitboard FULL_BOARD = (1ULL << 42) - 1;
 
 
 void switchSide(int *sideToMove) {

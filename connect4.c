@@ -1,11 +1,14 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <errno.h>
-#include <limits.h>
-#include "search.c"
+#include <errno.h> 
+#include <limits.h> 
+#include <stdbool.h> 
+#include <stdint.h> 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include "helper.h" 
+#include "bitboard.h" 
+#include "zobrist.h" 
+#include "search.h"
 
 
 int main(void) {
@@ -13,18 +16,29 @@ int main(void) {
     bitboard rbb = 0;
     bitboard ybb = 0;
 
+    u_int64_t randVals[86];
+    zobristInit(randVals);
+
     int heights[7];
     memset(heights, 0, sizeof(heights));
 
     int sideToMove = RED;
     int playerColor = RED;
     int mode = 1;
+    int index;
 
     while (true) {
         rbb = 0;
         ybb = 0;
+
         memset(heights, 0, sizeof(heights));
+
         sideToMove = RED;
+        uint64_t hashVal = randVals[ZOBRIST_RED_TO_MOVE];
+
+        for (int i = 0; i < TT_SIZE; i++) {
+            tTable[i].col = -1;
+        }   
         
         printf("Enter 1 for Player vs Player. Enter 2 to play against a bot. ");
         while (true) {
@@ -59,45 +73,58 @@ int main(void) {
             }
         
             if (mode == 1) {
-                if (sideToMove == RED && placePiece(&rbb, heights, col - 1) == -1) {
-                    printf("Column full. Select a different column.\n");
-                    continue;
-                } else if (sideToMove == YELLOW && placePiece(&ybb, heights, col - 1) == -1) {
-                    printf("Column full. Select a different column.\n");
-                    continue;
+                if (sideToMove == RED) {
+                    index = placePiece(&rbb, heights, col - 1);
+                    if (index == -1) {
+                        printf("Column full. Select a different column.\n");
+                        continue;
+                    }
+                } else if (sideToMove == YELLOW) {
+                    index = placePiece(&ybb, heights, col - 1);
+                    if (index == -1) {
+                        printf("Column full. Select a different column.\n");
+                        continue;
+                    }
                 }
             } else if (mode == 2) {
                 if (sideToMove == playerColor) {
                     if (playerColor == RED) {
-                        if (placePiece(&rbb, heights, col - 1) == -1) {
+                        index = placePiece(&rbb, heights, col - 1);
+                        if (index == -1) {
                             printf("Column full. Select a different column.\n");
                             continue;
                         } 
-                    } else if (placePiece(&ybb, heights, col - 1) == -1) {
-                        printf("Column full. Select a different column.\n");
-                        continue;
+                    } else {
+                        index = placePiece(&ybb, heights, col - 1);
+                        if (index == -1) {
+                            printf("Column full. Select a different column.\n");
+                            continue;
+                        }
                     }
                 } else {
-                    col = search(rbb, ybb, heights, sideToMove);
+                    col = search(rbb, ybb, heights, sideToMove, hashVal, randVals);
                     if (sideToMove == RED) {
-                        placePiece(&rbb, heights, col);
+                        index = placePiece(&rbb, heights, col);
                     } else {
-                        placePiece(&ybb, heights, col);
+                        index = placePiece(&ybb, heights, col);
                     }
-                    printf("%d", heights[col]);
-                    printf("%d", col);
                 }
             }
             printBoard(rbb, ybb);
-            // printf("TWO: %d, %d\n", TwoInARowCount(rbb), TwoInARowCount(ybb));
-            // printf("THREE: %d, %d\n", ThreeInARowCount(rbb), ThreeInARowCount(ybb));
-            // printf("SQUARE: %d, %d\n", SquaresCount(rbb), SquaresCount(ybb));
 
             int gameState = gameOver(rbb, ybb);
             if (gameState == -1) {
+                // Update zobrist hash
+                if (sideToMove == RED) {
+                    hashVal ^= randVals[index];
+                    hashVal ^= randVals[ZOBRIST_YELLOW_TO_MOVE];
+                } else {
+                    hashVal ^= randVals[ZOBRIST_YELLOW_OFFSET + index];
+                    hashVal ^= randVals[ZOBRIST_RED_TO_MOVE];
+                }
                 switchSide(&sideToMove);
                 continue;
-            } 
+            }
 
             if (gameState == 0) {
                 printf("DRAW\n");

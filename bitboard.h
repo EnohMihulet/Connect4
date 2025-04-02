@@ -1,7 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include "helper.c"
+#pragma once 
+#include "helper.h"
+
+
+typedef struct { int moves[7]; int count; } Moves;
 
 
 void setBit(bitboard *bb, int pos) {
@@ -46,12 +47,17 @@ int removePiece(bitboard *bb, int heights[7], int col) {
     return index;
 }
 
-void getPossibleCols(bitboard bb, int heights[7], int cols[7]) {
-    for (int i = 0; i < 7; i++) {
-        if (heights[i] != 6) {
-            cols[i] = 1;
-        }
-    }
+Moves getPossibleCols(const int heights[7]) {
+     Moves valid; 
+     valid.count = 0; 
+     int order[7] = {3, 4, 2, 5, 1, 6, 0}; 
+     for (int i = 0; i < 7; i++) { 
+        int col = order[i]; 
+        if (heights[col] < 6) { 
+            valid.moves[valid.count++] = col; 
+        } 
+    } 
+    return valid; 
 }
 
 int popcount(bitboard bb) {
@@ -93,6 +99,8 @@ int is4InARow(bitboard bb) {
 
 int fourInARowCount(bitboard bb) {
     int count = 0;
+    bb = ~bb;
+
     bitboard hbb1 = (bb & FIRST_COLUMN_MASK) >> 1;
     bitboard hbb2 = (hbb1 & FIRST_COLUMN_MASK) >> 1;
     bitboard hbb3 = (hbb2 & FIRST_COLUMN_MASK) >> 1;
@@ -115,6 +123,8 @@ int fourInARowCount(bitboard bb) {
     count += popcount(bb & bdbb1 & bdbb2 & bdbb3);
     return count;
 }
+
+// int ThreeInARowCount(bitboard)
 
 int printBoard(bitboard rbb, bitboard ybb) {
     printf("\n   1   2   3   4   5   6   7   ");
@@ -139,12 +149,8 @@ int printBoard(bitboard rbb, bitboard ybb) {
 }
 
 int gameOver(bitboard rbb, bitboard ybb) {
-    if (is4InARow(rbb) == 1) {
-        return RED;
-    } else if (is4InARow(ybb) == 1) {
-        return YELLOW;
-    } else if ((rbb | ybb) == FULL_BOARD) {
-        return 0;
-    }
+    if (is4InARow(rbb) == 1) { return RED; } 
+    else if (is4InARow(ybb) == 1) { return YELLOW; } 
+    else if ((rbb | ybb) == FULL_BOARD) { return 0; }
     return -1;
 }
