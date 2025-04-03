@@ -2,9 +2,6 @@
 #include "helper.h"
 
 
-typedef struct { int moves[7]; int count; } Moves;
-
-
 void setBit(bitboard *bb, int pos) {
     *bb |= (1ULL << pos); 
 }
@@ -50,9 +47,8 @@ int removePiece(bitboard *bb, int heights[7], int col) {
 Moves getPossibleCols(const int heights[7]) {
      Moves valid; 
      valid.count = 0; 
-     int order[7] = {3, 4, 2, 5, 1, 6, 0}; 
      for (int i = 0; i < 7; i++) { 
-        int col = order[i]; 
+        int col = i; 
         if (heights[col] < 6) { 
             valid.moves[valid.count++] = col; 
         } 

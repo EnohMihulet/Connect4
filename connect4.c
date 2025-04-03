@@ -11,6 +11,9 @@
 #include "search.h"
 
 
+TTEntry tTable[TT_SIZE];
+
+
 int main(void) {
     int col;
     bitboard rbb = 0;
@@ -21,7 +24,7 @@ int main(void) {
 
     int heights[7];
     memset(heights, 0, sizeof(heights));
-
+   
     int sideToMove = RED;
     int playerColor = RED;
     int mode = 1;
@@ -102,7 +105,7 @@ int main(void) {
                         }
                     }
                 } else {
-                    col = search(rbb, ybb, heights, sideToMove, hashVal, randVals);
+                    col = search(rbb, ybb, heights, sideToMove, hashVal, randVals, tTable);
                     if (sideToMove == RED) {
                         index = placePiece(&rbb, heights, col);
                     } else {
