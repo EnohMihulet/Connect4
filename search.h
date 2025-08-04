@@ -7,9 +7,10 @@
 #include <limits.h> 
 #include "transposition.h" 
 #include "zobrist.h"
+#include "bitboard.h"
 
 // Define constants as static constants. 
-static const int MAX_TIME = 60;
+static const int MAX_TIME = 3;
 static const int INFINITY = 999999;
 static const int LOST = -99999;
 static const int WON = 99999;
@@ -63,7 +64,6 @@ int alphaBetaSearch(bitboard rbb, bitboard ybb, int pliesRemaining, int pliesFro
                 return entry.score;
             }
         }
-        
     }
 
     if (pliesRemaining == 0) { return evaluation(rbb, ybb, heights, sideToMove); }
@@ -141,7 +141,6 @@ SearchContext *ctx, TTEntry tTable[TT_SIZE]) {
     // Iteratively search deeper (maximum 42 moves)
     for (int i = 1; i < 43; i++) {
         alphaBetaSearch(rbb, ybb, i, 0, -INFINITY, INFINITY, heights, sideToMove, hashVal, randVals, ctx, tTable);
-        printf("%d ", i);
         
         time_t current_time = time(NULL);        
         if (difftime(current_time, ctx->start_time) >= MAX_TIME) { ctx->searchCanceled = true; }
@@ -168,8 +167,6 @@ int search(bitboard rbb, bitboard ybb, int heights[7], int sideToMove, uint64_t 
     ctx.bestMoveThisIteration.score = -INFINITY;
 
     runIterativeDeepening(rbb, ybb, heights, sideToMove, hashVal, randVals, &ctx, tTable);
-    printf("best score: %d ", ctx.bestMove.score);
-    printf("best col: %d", ctx.bestMove.col);
     
     return ctx.bestMove.col;
 }

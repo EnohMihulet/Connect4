@@ -32,7 +32,7 @@ static int getEvaluation(uint64_t zobrist, TTEntry tTable[TT_SIZE]) {
     return (zobrist == x.key) ? x.score : -1;
 }
 
-static int setNodeType(int alpha, int beta, int originalAlpha) { 
+static NodeType setNodeType(int alpha, int beta, int originalAlpha) { 
     if (alpha == originalAlpha) { return NODE_TYPE_UPPERBOUND; }
     else if (alpha >= beta) { return NODE_TYPE_LOWERBOUND; }
     else { return NODE_TYPE_EXACT; }
